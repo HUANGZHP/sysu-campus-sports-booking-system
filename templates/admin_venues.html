@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2 style="margin:0; color:#005826;">🏟️ 场馆管理</h2>
+  </div>
+
+  <div style="background:#f9fafb; padding:20px; border-radius:8px; margin-bottom:30px; border:1px solid #eee;">
+    <h4 style="margin-top:0; margin-bottom:15px; font-size: 16px;">➕ 添加新场地</h4>
+    
+    <form method="post" enctype="multipart/form-data" style="display:flex; gap:10px; flex-wrap:wrap; align-items:end;">
+        <input type="hidden" name="action" value="add">
+        
+        <div>
+            <label style="font-size:12px; display:block; margin-bottom:5px;">校区</label>
+            <select name="campus" required style="padding:8px; border-radius:4px; border:1px solid #ccc; height: 38px;">
+                <option value="东园">东园</option>
+                <option value="西园">西园</option>
+            </select>
+        </div>
+
+        <div>
+            <label style="font-size:12px; display:block; margin-bottom:5px;">场馆名称 (如: 篮球馆)</label>
+            <input name="venue_name" required style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 140px; height: 20px;">
+        </div>
+
+        <div>
+            <label style="font-size:12px; display:block; margin-bottom:5px;">场地名称 (如: 1号场)</label>
+            <input name="field_name" required style="padding:8px; border:1px solid #ccc; border-radius:4px; width: 140px; height: 20px;">
+        </div>
+
+        <div>
+            <label style="font-size:12px; display:block; margin-bottom:5px;">运动类型</label>
+            <input name="facility_type" placeholder="如: 游泳/击剑" required style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 100px; height: 20px;">
+        </div>
+
+        <div>
+            <label style="font-size:12px; display:block; margin-bottom:5px;">容纳人数</label>
+            <input name="capacity" type="number" value="10" required style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; width: 70px; height: 20px;">
+        </div>
+
+        <div>
+            <label style="font-size:12px; display:block; margin-bottom:5px;">价格/小时</label>
+            <input name="price" type="number" required style="padding:8px; width:80px; border:1px solid #ccc; border-radius:4px; height: 20px;">
+        </div>
+
+        <div>
+            <label style="font-size:12px; display:block; margin-bottom:5px;">展示图</label>
+            <input type="file" name="image" accept="image/*" style="font-size: 12px; width: 150px;">
+        </div>
+
+        <button type="submit" class="btn" style="height: 38px; padding: 0 20px;">立即添加</button>
+    </form>
+</div>
+
+<table class="modern-table">
+    <thead>
+        <tr>
+            <th width="100">展示图</th>
+            <th>位置</th>
+            <th>场地信息</th>
+            <th width="80">容纳人数</th> <th>价格/小时</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in rows %}
+        <tr>
+            <td>
+                <img src="{{ url_for('static', filename='uploads/' + (r['图片'] if r['图片'] else 'default.jpg')) }}" 
+                     style="width:80px; height:50px; object-fit:cover; border-radius:4px; background:#eee;">
+            </td>
+            <td>
+                <span class="badge badge-gray">{{ r['校区'] }}</span><br>
+                <input type="text" form="form-{{ r['场地ID'] }}" name="new_venue_name" value="{{ r['场馆名称'] }}" 
+                       style="width:100px; padding:4px; border:1px solid #ddd; border-radius:4px; margin-top:5px;">
+            </td>
+            <td>
+                <input type="text" form="form-{{ r['场地ID'] }}" name="new_field_name" value="{{ r['场地名称'] }}" 
+                       style="width:100px; padding:4px; border:1px solid #ddd; border-radius:4px; margin-bottom:5px;">
+                <span class="badge badge-blue">{{ r['设施类型'] }}</span>
+            </td>
+            <td>
+                <input type="number" form="form-{{ r['场地ID'] }}" name="capacity" value="{{ r['可容纳人数'] }}" 
+                       style="width:60px; padding:4px; border:1px solid #ddd; border-radius:4px;">
+            </td>
+            <td style="color:#d97706; font-weight:bold;">
+                ¥ <input type="number" form="form-{{ r['场地ID'] }}" name="price" value="{{ r['预约价格'] }}" 
+                         style="width:60px; padding:4px; border:1px solid #ddd; border-radius:4px; color:#d97706;">
+            </td>
+            <td>
+                <div style="display:flex; gap:10px; flex-direction:column;">
+                    <form id="form-{{ r['场地ID'] }}" method="post" style="display:flex; gap:5px;">
+                        <input type="hidden" name="action" value="update_all">
+                        <input type="hidden" name="field_id" value="{{ r['场地ID'] }}">
+                        <button type="submit" class="btn btn-sm" style="background:#2563eb;">一键保存</button>
+                    </form>
+                    
+                    <form method="post" enctype="multipart/form-data" style="display:flex; gap:5px;">
+                        <input type="hidden" name="field_id" value="{{ r['场地ID'] }}">
+                        <input type="file" name="image" accept="image/*" style="width:140px; font-size:10px;">
+                        <button type="submit" name="action" value="upload_image" class="btn btn-sm">传图</button>
+                        <button type="submit" name="action" value="delete_field" class="btn btn-sm" 
+                                style="background:#dc2626;" onclick="return confirm('确定删除该场地及其所有关联预约吗？')">删除</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

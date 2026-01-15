@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="display: grid; grid-template-columns: 1fr 280px; gap: 25px; align-items: start;">
+
+  <div>
+    {% for p in posts %}
+    <div class="card" style="padding: 20px; border-radius: 12px; margin-bottom: 20px; transition: transform 0.2s;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 40px; height: 40px; background: #e5e7eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                👤
+            </div>
+            <div>
+                <div style="font-weight: bold; font-size: 15px;">{{ p['姓名'] }}</div>
+                <div class="muted" style="font-size: 12px;">{{ p['发帖时间'] }}</div>
+            </div>
+        </div>
+        
+        {% if user.role == '管理员' %}
+        <form method="post" action="{{ url_for('admin_delete_post') }}" onsubmit="return confirm('确定删除此贴？');">
+            <input type="hidden" name="post_id" value="{{ p['帖子id'] }}">
+            <button type="submit" class="btn btn-sm" style="background: transparent; color: #9ca3af; padding: 5px;">
+                <i class="fa-solid fa-trash"></i> 删除
+            </button>
+        </form>
+        {% endif %}
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <a href="{{ url_for('post_detail', post_id=p['帖子id']) }}" style="text-decoration: none; color: inherit;">
+            <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #1f2937;">
+                {% if ']' in p['标题'] %}
+                    <span style="color: #005826; margin-right: 5px;">{{ p['标题'].split(']')[0] + ']' }}</span>
+                    {{ p['标题'].split(']')[1] }}
+                {% else %}
+                    {{ p['标题'] }}
+                {% endif %}
+            </h3>
+            <p style="margin: 0; color: #4b5563; font-size: 15px; line-height: 1.6;">
+                {{ p['内容'][:120] }}{% if p['内容']|length > 120 %}...{% endif %}
+            </p>
+        </a>
+      </div>
+
+      <div style="border-top: 1px solid #f3f4f6; padding-top: 12px; display: flex; justify-content: space-around; color: #6b7280; font-size: 14px;">
+        <span style="cursor: pointer;" onclick="location.href='{{ url_for('post_detail', post_id=p['帖子id']) }}'"><i class="fa-regular fa-comment"></i> {{ p['评论数'] }} 评论</span>
+        
+        <form action="{{ url_for('post_detail', post_id=p['帖子id']) }}" method="post" style="margin: 0; display: inline;">
+            <input type="hidden" name="action" value="like">
+            <span style="cursor: pointer;" onclick="this.parentNode.submit()"><i class="fa-regular fa-thumbs-up"></i> 点赞</span>
+        </form>
+
+        <span style="cursor: pointer;"><i class="fa-regular fa-share-from-square"></i> 分享</span>
+      </div>
+
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 50px; color: #999;">
+        还没有帖子，快来发布第一条吧！
+    </div>
+    {% endfor %}
+  </div>
+
+  <div style="position: sticky; top: 90px;">
+    
+    <div class="card" style="text-align: center; padding: 30px 20px; margin-bottom: 20px;">
+        <div style="width: 60px; height: 60px; background: #dcfce7; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 30px;">
+            🤠
+        </div>
+        <h3 style="margin: 0;">{{ user.name }}</h3>
+        <p class="muted" style="margin: 5px 0 20px;">{{ user.role }}</p>
+        
+        <div style="display: flex; justify-content: space-around; border-top: 1px solid #eee; padding-top: 15px;">
+            <div>
+                <strong>12</strong><br><span class="muted" style="font-size: 12px;">关注</span>
+            </div>
+            <div>
+                <strong>34</strong><br><span class="muted" style="font-size: 12px;">粉丝</span>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="openModal()" class="btn" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 25px; box-shadow: 0 4px 10px rgba(0,88,38,0.2); display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span>✏️</span> 发布新动态
+    </button>
+
+    <div class="card" style="margin-top: 20px;">
+        <h4 style="margin-top: 0; margin-bottom: 15px;">🔥 热门话题</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <span class="badge badge-green">#约球</span>
+            <span class="badge badge-blue">#失物招领</span>
+            <span class="badge badge-red">#吐槽</span>
+            <span class="badge badge-purple">#组队</span>
+        </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="postModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: white; width: 500px; border-radius: 12px; padding: 25px; position: relative; animation: slideDown 0.3s;">
+        <h3 style="margin-top: 0;">发布新动态</h3>
+        <button onclick="closeModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; cursor: pointer;">×</button>
+        
+        <form method="post">
+            <div style="margin-bottom: 15px;">
+                <label style="font-size: 13px; font-weight: bold; display: block; margin-bottom: 5px;">选择话题</label>
+                <div style="display: flex; gap: 10px;">
+                    <label><input type="radio" name="category" value="约球" checked> 🏀 约球</label>
+                    <label><input type="radio" name="category" value="失物招领"> 🔍 失物招领</label>
+                    <label><input type="radio" name="category" value="求助"> ❓ 求助</label>
+                    <label><input type="radio" name="category" value="闲聊"> 💬 闲聊</label>
+                </div>
+            </div>
+
+            <input name="title" placeholder="标题 (必填)" required style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+            
+            <textarea name="content" rows="5" required placeholder="分享你的新鲜事..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; resize: none;"></textarea>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <button type="button" onclick="closeModal()" class="btn btn-outline" style="margin-right: 10px;">取消</button>
+                <button type="submit" class="btn" style="padding: 8px 25px;">发布</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openModal() {
+    document.getElementById('postModal').style.display = 'flex';
+}
+function closeModal() {
+    document.getElementById('postModal').style.display = 'none';
+}
+// 点击遮罩层关闭
+document.getElementById('postModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+</script>
+
+<style>
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>中山大学体育馆预约系统</title>
+  <link href="{{ url_for('static', filename='sysu.css') }}?v=10.0" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <div class="topbar">
+    <a href="{{ url_for('home') }}" class="brand">
+        <img src="{{ url_for('static', filename='images/sysu_logo.jpg') }}" alt="SYSU" style="height:40px !important; width:40px !important; object-fit:contain;">
+        <span>中山大学 | 体育馆预约</span>
+    </a>
+
+    {% if user %}
+      <div class="nav">
+        {% if user.role == '管理员' %}
+            <a href="{{ url_for('admin_dashboard') }}">控制台</a>
+            <a href="{{ url_for('announcements') }}">公告</a>
+            <a href="{{ url_for('admin_venues') }}">场馆管理</a>
+            <a href="{{ url_for('fields') }}">场地预约</a>
+            <a href="{{ url_for('admin_bookings') }}">预约管理</a>
+            <a class="nav-link" href="{{ url_for('my_bookings') }}" style="color: #ffc107; font-weight: bold;">我的订单</a>
+        {% else %}
+            <a href="{{ url_for('dashboard') }}">首页</a>
+            <a href="{{ url_for('announcements') }}">公告</a>
+            <a href="{{ url_for('community') }}">社区</a>
+            <a href="{{ url_for('equipments') }}">器材租借</a>
+            <a href="{{ url_for('fields') }}">场地预约</a>
+            <a href="{{ url_for('my_bookings') }}">我的订单</a>
+        {% endif %}
+        
+        <a href="#" style="pointer-events:none; opacity:0.7; margin-left:10px;">{{ user.name }}</a>
+        <a href="{{ url_for('logout') }}" class="btn-logout" style="background:#b91c1c;">退出</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div style="background:#dcfce7; color:#14532d; padding:15px; border-radius:8px; margin-bottom:20px; text-align:center; border:1px solid #86efac;">
+          {{ messages[0] }}
+        </div>
+      {% endif %}
+    {% endwith %}
+    
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

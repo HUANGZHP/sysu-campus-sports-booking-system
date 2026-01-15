@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="background: linear-gradient(135deg, #005826 0%, #007C35 100%); color: white; padding: 40px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 8px 16px rgba(0,88,38,0.2); position: relative; overflow: hidden;">
+  <div style="position: relative; z-index: 2;">
+    <h1 style="margin: 0; font-size: 32px; font-weight: bold;">博学 审问 慎思 明辨 笃行</h1>
+    <p style="margin: 10px 0 20px 0; font-size: 16px; opacity: 0.9;">
+      欢迎回来，{{ user.name }}！今天也要保持好状态哦。
+    </p>
+    <div style="display:flex; gap:15px;">
+        <a href="{{ url_for('fields') }}" class="btn" style="background: white; color: #005826; font-weight: bold; border: none; padding: 10px 25px;">
+          📅 立即预约场地
+        </a>
+    </div>
+  </div>
+  <div style="position: absolute; right: 20px; bottom: -30px; font-size: 140px; font-weight: 800; opacity: 0.1; color: white; pointer-events: none;">
+    SYSU
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 25px;">
+  
+  <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+    <div>
+        <h3 style="margin:0 0 15px 0; color:#005826; font-size:18px; border-bottom:1px solid #eee; padding-bottom:10px;">
+            💳 校园钱包
+        </h3>
+        <div style="font-size: 46px; font-weight: bold; color: #333; margin: 15px 0;">
+            <small style="font-size: 24px; vertical-align: top; margin-top: 8px; display: inline-block;">¥</small> {{ info['当前余额'] }}
+        </div>
+        <div class="muted">资金安全 | 支持在线充值</div>
+    </div>
+    <a href="{{ url_for('wallet') }}" style="display:block; text-align:center; padding:12px; background:#f0fdf4; color:#005826; border:1px solid #bbf7d0; border-radius:6px; font-weight:bold; margin-top:15px; text-decoration:none;">
+        充值 / 流水
+    </a>
+  </div>
+
+  <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+    <div>
+        <h3 style="margin:0 0 15px 0; color:#1d4ed8; font-size:18px; border-bottom:1px solid #eee; padding-bottom:10px;">
+            🛡️ 信用评级
+        </h3>
+        <div style="font-size: 46px; font-weight: bold; color: #333; margin: 15px 0;">
+            {{ info['信用分'] }} <span style="font-size: 18px; color: #9ca3af; font-weight: normal;">/ 10</span>
+        </div>
+        <div class="muted">信用良好，享受优先预约权</div>
+    </div>
+    <div style="text-align:center; padding:12px; background:#eff6ff; color:#1d4ed8; border-radius:6px; font-weight:bold; margin-top:15px;">
+        状态：极佳
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 15px 0; color:#333;">❖ 快捷服务</h3>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        
+        <a href="{{ url_for('equipments') }}" style="display: block; padding: 20px; background: #fdf4ff; border: 1px solid #f0abfc; border-radius: 10px; text-decoration: none; transition: 0.2s;">
+            <div style="font-size: 28px; margin-bottom: 5px;">🏀</div>
+            <div style="color: #86198f; font-weight: bold; font-size: 15px;">器材租借</div>
+            <div style="color: #c026d3; font-size: 12px;">球类/球拍</div>
+        </a>
+
+        <a href="{{ url_for('repairs') }}" style="display: block; padding: 20px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px; text-decoration: none; transition: 0.2s;">
+            <div style="font-size: 28px; margin-bottom: 5px;">🛠</div>
+            <div style="color: #9a3412; font-weight: bold; font-size: 15px;">故障报修</div>
+            <div style="color: #ea580c; font-size: 12px;">设施维护</div>
+        </a>
+
+        <a href="{{ url_for('announcements') }}" style="display: block; padding: 20px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; text-decoration: none; transition: 0.2s;">
+            <div style="font-size: 28px; margin-bottom: 5px;">📢</div>
+            <div style="color: #991b1b; font-weight: bold; font-size: 15px;">最新公告</div>
+            <div style="color: #ef4444; font-size: 12px;">赛事/通知</div>
+        </a>
+
+        <a href="{{ url_for('community') }}" style="display: block; padding: 20px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; text-decoration: none; transition: 0.2s;">
+            <div style="font-size: 28px; margin-bottom: 5px;">💬</div>
+            <div style="color: #1e40af; font-weight: bold; font-size: 15px;">运动社区</div>
+            <div style="color: #3b82f6; font-size: 12px;">互动交流</div>
+        </a>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

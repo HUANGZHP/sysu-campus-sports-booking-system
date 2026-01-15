@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2 style="color:#005826; margin-top:0;">🛠 报修处理中心</h2>
+  
+  <table class="modern-table">
+    <thead>
+      <tr>
+        <th>状态</th>
+        <th>场地</th>
+        <th>报修人</th>
+        <th>描述</th>
+        <th>时间</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>
+            {% if r['状态']=='提交中' %}<span class="badge badge-red">待处理</span>
+            {% else %}<span class="badge badge-green">已修复</span>{% endif %}
+        </td>
+        <td>{{ r['场馆名称'] }} - {{ r['场地名称'] }}</td>
+        <td>{{ r['报修人'] }}</td>
+        <td style="color:#555;">{{ r['描述'] }}</td>
+        <td class="muted">{{ r['创建时间'] }}</td>
+        <td>
+            {% if r['状态'] == '提交中' %}
+            <form method="post">
+                <input type="hidden" name="repair_id" value="{{ r['报修ID'] }}">
+                <button type="submit" class="btn btn-sm">标记修复</button>
+            </form>
+            {% else %}-{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

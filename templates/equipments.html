@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* 左右布局容器 */
+    .equipment-container {
+        display: grid;
+        grid-template-columns: 1fr 300px; /* 左侧自适应，右侧固定300px */
+        gap: 25px;
+    }
+
+    /* 器材网格：核心修改 */
+    .equipment-grid {
+        display: grid;
+        /* 改为 160px，让每行显示的个数更多，从而使每个卡片变小 */
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+        gap: 15px; /* 间距也稍微调小 */
+    }
+
+    .equipment-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .equipment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.08);
+        border-color: #bbf7d0;
+    }
+
+    /* 图片容器：核心修改 */
+    .eq-image-container {
+        width: 100%;
+        /* 强制 1:1 正方形比例 */
+        aspect-ratio: 1 / 1; 
+        background: #f9fafb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .eq-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* 保证填满正方形，不会变形 */
+        padding: 10px; /* 给图片一点内边距，让它像商品一样展示，不贴边 */
+        box-sizing: border-box;
+    }
+
+    .eq-details {
+        padding: 10px; /* 减小内边距 */
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .eq-title {
+        font-size: 15px; /* 字体调小 */
+        font-weight: bold;
+        color: #1f2937;
+        margin: 0 0 4px 0;
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis; /* 防止标题太长换行 */
+    }
+
+    .eq-meta {
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+
+    .eq-action-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 5px;
+    }
+
+    .eq-price {
+        color: #d97706; /* 橙色价格更显眼 */
+        font-weight: bold;
+        font-size: 14px;
+        font-family: monospace;
+    }
+
+    .btn-rent {
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 15px;
+        background: #005826;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-rent:disabled { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
+
+    /* 右侧历史记录栏 */
+    .history-sidebar {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        height: fit-content;
+        border: 1px solid #f0f0f0;
+        position: sticky;
+        top: 20px;
+    }
+
+    .history-item {
+        padding: 10px 0;
+        border-bottom: 1px dashed #f3f4f6;
+    }
+    .history-item:last-child { border-bottom: none; }
+
+    .status-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: normal; }
+    .status-borrowed { background: #dbeafe; color: #1e40af; }
+    .status-returned { background: #f3f4f6; color: #6b7280; }
+</style>
+
+<div class="equipment-container">
+    
+    <div>
+        <div class="card" style="margin-bottom: 20px; border-left: 4px solid #005826; padding: 15px;">
+            <h2 style="margin: 0; color: #005826; font-size: 20px; display: flex; align-items: center; gap: 8px;">
+                🏀 器材租借
+            </h2>
+        </div>
+
+        <div class="equipment-grid">
+            {% for item in items %}
+            <div class="equipment-card">
+                <div class="eq-image-container">
+                    <img src="{{ url_for('static', filename='uploads/' + (item['image'] if item['image'] else 'default_equipment.jpg')) }}" 
+                         alt="{{ item['name'] }}" class="eq-image">
+                </div>
+                <div class="eq-details">
+                    <div>
+                        <h3 class="eq-title" title="{{ item['name'] }}">{{ item['name'] }}</h3>
+                        <div class="eq-meta">
+                            库存: 
+                            <span style="font-weight: bold; color: {% if item['available'] > 0 %}#059669{% else %}#dc2626{% endif %}">
+                                {{ item['available'] }}
+                            </span> / {{ item['total'] }}
+                        </div>
+                    </div>
+                    
+                    <div class="eq-action-row">
+                        <span class="eq-price">¥{{ item['cost'] }}</span>
+                        
+                        <form method="post">
+                            <input type="hidden" name="eq_id" value="{{ item['id'] }}">
+                            {% if item['available'] > 0 %}
+                            <button type="submit" class="btn-rent">借用</button>
+                            {% else %}
+                            <button type="button" disabled class="btn-rent">缺货</button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="history-sidebar">
+        <h4 style="margin-top: 0; color: #374151; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; margin-bottom: 15px;">
+            📝 我的记录
+        </h4>
+        
+        {% if my_items %}
+            {% for m in my_items %}
+            <div class="history-item">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="font-weight: 600; font-size: 13px; color: #374151;">{{ m['name'] }}</span>
+                    {% if m['status'] == '借出' %}
+                        <span class="status-badge status-borrowed">借出中</span>
+                    {% else %}
+                        <span class="status-badge status-returned">已还</span>
+                    {% endif %}
+                </div>
+                <div style="font-size: 11px; color: #9ca3af; margin-bottom: 5px;">
+                    {{ m['time'] }}
+                </div>
+                
+                {% if m['status'] == '借出' %}
+                <form method="post" style="text-align: right;">
+                    <input type="hidden" name="action" value="return">
+                    <input type="hidden" name="borrow_id" value="{{ m['borrow_id'] }}">
+                    <button type="submit" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; color: #dc2626; border-color: #fecaca; background:white;">
+                        归还
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align: center; padding: 20px 0; color: #9ca3af; font-size: 12px;">
+                暂无记录
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

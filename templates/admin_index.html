@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .admin-banner {
+        background: url("{{ url_for('static', filename='images/sysu_bg.jpg') }}") no-repeat center;
+        background-size: cover;
+        color: white; 
+        padding: 50px 40px; 
+        border-radius: 12px; 
+        margin-bottom: 35px; 
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 88, 38, 0.15);
+    }
+    .admin-banner::before { 
+        content: ""; 
+        position: absolute; 
+        top:0; left:0; right:0; bottom:0; 
+        background: linear-gradient(135deg, rgba(0, 88, 38, 0.9), rgba(6, 78, 59, 0.8)); 
+        z-index: 1;
+    }
+    .admin-content { 
+        position: relative; 
+        z-index: 2; 
+    }
+    
+    /* 网格布局：强制 4 列 */
+    .grid-menu { 
+        display: grid; 
+        grid-template-columns: repeat(4, 1fr); 
+        gap: 25px; 
+    }
+    
+    /* 响应式适配 */
+    @media (max-width: 1200px) {
+        .grid-menu { grid-template-columns: repeat(3, 1fr); } 
+    }
+    @media (max-width: 900px) {
+        .grid-menu { grid-template-columns: repeat(2, 1fr); } 
+    }
+    @media (max-width: 600px) {
+        .grid-menu { grid-template-columns: 1fr; } 
+    }
+    
+    .menu-item { 
+        background: #fff; 
+        padding: 30px 20px; 
+        border-radius: 12px; 
+        text-align: center; 
+        text-decoration: none; 
+        color: #333; 
+        border: 1px solid #f3f4f6; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%; 
+    }
+    
+    .menu-item:hover { 
+        transform: translateY(-5px); 
+        box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 8px -5px rgba(0, 0, 0, 0.04);
+        border-color: #dcfce7; 
+        background: linear-gradient(to bottom right, #fff, #f0fdf4);
+    }
+    
+    .menu-item h3 { 
+        margin: 12px 0 6px 0; 
+        color: #1f2937; 
+        font-size: 16px; 
+        font-weight: 700;
+    }
+    
+    .menu-item p { 
+        margin: 0; 
+        font-size: 12px; 
+        color: #6b7280; 
+    }
+    
+    .menu-icon { 
+        font-size: 36px; 
+        margin-bottom: 5px; 
+        filter: drop-shadow(0 4px 3px rgba(0,0,0,0.07));
+    }
+</style>
+
+<div class="admin-banner">
+    <div class="admin-content">
+        <h1 style="margin:0; font-size: 32px; letter-spacing: 1px;">管理员控制台</h1>
+        <p style="opacity: 0.9; margin-top: 10px; font-size: 16px;">欢迎回来，请选择要管理的功能模块</p>
+    </div>
+</div>
+
+<div class="grid-menu">
+    <a href="{{ url_for('admin_bookings') }}" class="menu-item">
+        <div class="menu-icon">📊</div>
+        <h3>预约全览</h3>
+        <p>监控全校场地预约动态</p>
+    </a>
+
+    <a href="{{ url_for('admin_credit') }}" class="menu-item">
+        <div class="menu-icon">🛡️</div>
+        <h3>信用管理</h3>
+        <p>学生违规记录与筛选</p>
+    </a>
+
+    <a href="{{ url_for('admin_finance') }}" class="menu-item">
+        <div class="menu-icon">💰</div>
+        <h3>财务报表</h3>
+        <p>月度营收与热度图表</p>
+    </a>
+
+    <a href="{{ url_for('community') }}" class="menu-item">
+        <div class="menu-icon">💬</div>
+        <h3>社区管理</h3>
+        <p>论坛内容监管与维护</p>
+    </a>
+
+    <a href="{{ url_for('admin_venues') }}" class="menu-item">
+        <div class="menu-icon">🏟️</div>
+        <h3>场馆管理</h3>
+        <p>场地增删、定价与图片</p>
+    </a>
+
+    <a href="{{ url_for('admin_equipment') }}" class="menu-item">
+        <div class="menu-icon">🏀</div>
+        <h3>器材管理</h3>
+        <p>管理库存与租借费用</p>
+    </a>
+
+    <a href="{{ url_for('admin_repairs') }}" class="menu-item">
+        <div class="menu-icon">🛠</div>
+        <h3>报修处理</h3>
+        <p>查看并处理故障上报</p>
+    </a>
+
+    <a href="{{ url_for('announcements') }}" class="menu-item">
+        <div class="menu-icon">📢</div>
+        <h3>公告与封场</h3>
+        <p>发布通知、维修及赛事</p>
+    </a>
+</div>
+{% endblock %}

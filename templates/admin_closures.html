@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2 style="color:#005826; margin-top:0;">🚫 封场与赛事管理</h2>
+  
+  <div style="background:#fff7ed; border:1px solid #fed7aa; padding:20px; border-radius:8px; margin-bottom:30px;">
+    <h4 style="margin-top:0; color:#9a3412;">新增封场/赛事</h4>
+    <form method="post" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <select name="field_id" required style="padding:8px; border-radius:4px; border:1px solid #ccc;">
+            {% for f in fields %}
+            <option value="{{ f['场地ID'] }}">{{ f['场地名称'] }}</option>
+            {% endfor %}
+        </select>
+        
+        <select name="reason" style="padding:8px; border-radius:4px; border:1px solid #ccc;">
+            <option value="维修">维修</option>
+            <option value="赛事">赛事</option>
+            <option value="课程">课程</option>
+            <option value="天气">天气</option>
+        </select>
+        
+        <input type="datetime-local" name="start_time" required style="padding:8px; border:1px solid #ccc; border-radius:4px;">
+        <span class="muted">至</span>
+        <input type="datetime-local" name="end_time" required style="padding:8px; border:1px solid #ccc; border-radius:4px;">
+        
+        <button type="submit" class="btn" style="background:#ea580c;">发布封场</button>
+    </form>
+  </div>
+
+  <table class="modern-table">
+    <thead>
+      <tr>
+        <th>类型</th>
+        <th>场地</th>
+        <th>开始时间</th>
+        <th>结束时间</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in closures %}
+      <tr>
+        <td>
+            {% if c['原因类型']=='维修' %}<span class="badge badge-red">维修</span>
+            {% elif c['原因类型']=='赛事' %}<span class="badge badge-purple">赛事</span>
+            {% else %}<span class="badge badge-gray">{{ c['原因类型'] }}</span>{% endif %}
+        </td>
+        <td><strong>{{ c['场地名称'] }}</strong></td>
+        <td>{{ c['开始时间'] }}</td>
+        <td>{{ c['结束时间'] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

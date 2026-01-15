@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card" style="margin-bottom: 25px; border-left: 5px solid #005826; padding: 20px 25px;">
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h2 style="margin: 0; color: #005826; display: flex; align-items: center; gap: 12px; font-size: 22px;">
+                <span style="font-size: 24px;">🗓️</span> 全校预约监控台
+            </h2>
+            <p class="muted" style="margin: 8px 0 0 0; font-size: 14px; color: #64748b;">
+                实时监控所有场地的预订动态。管理员拥有最高权限，可对异常订单进行强制取消。
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+    <table class="modern-table" style="margin: 0; width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                <th style="padding: 18px 25px; color: #475569; font-weight: 600; width: 220px;">
+                    预约信息 (ID/时间)
+                </th>
+                <th style="padding: 18px 25px; color: #475569; font-weight: 600;">
+                    用户信息
+                </th>
+                <th style="padding: 18px 25px; color: #475569; font-weight: 600;">
+                    场地详情
+                </th>
+                <th style="padding: 18px 25px; color: #475569; font-weight: 600; width: 120px;">
+                    状态
+                </th>
+                <th style="padding: 18px 25px; color: #475569; font-weight: 600; text-align: right; width: 140px;">
+                    管理操作
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in rows %}
+            <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#fcfdfe'" onmouseout="this.style.background='transparent'">
+                
+                <td style="padding: 18px 25px; vertical-align: top;">
+                    <div style="font-family: monospace; color: #94a3b8; font-size: 12px; margin-bottom: 8px; background: #f1f5f9; display: inline-block; padding: 2px 6px; border-radius: 4px;">
+                        #{{ r['预约ID'] }}
+                    </div>
+                    <div style="font-weight: 600; color: #1e293b; font-size: 15px; margin-bottom: 4px;">
+                        {{ r['预约日期'] }}
+                    </div>
+                    <div style="font-size: 13px; color: #64748b; display: flex; align-items: center; gap: 6px;">
+                        <span style="opacity: 0.7;">⏰</span> {{ r['开始时间'] }} - {{ r['结束时间'] }}
+                    </div>
+                </td>
+
+                <td style="padding: 18px 25px; vertical-align: top;">
+                   <div style="display: flex; align-items: flex-start; gap: 12px;">
+                       <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #475569; font-weight: bold; flex-shrink: 0;">
+                           {{ r['姓名'][0] }}
+                       </div>
+                       <div>
+                           <div style="font-weight: 600; color: #1e293b; font-size: 15px;">
+                               {{ r['姓名'] }}
+                           </div>
+                           <div style="font-size: 13px; color: #64748b; margin-top: 4px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 2px 8px; border-radius: 12px; display: inline-block;">
+                               💳 {{ r['学号或工号'] }}
+                           </div>
+                       </div>
+                   </div>
+                </td>
+
+                <td style="padding: 18px 25px; vertical-align: top;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="font-weight: 600; color: #005826; font-size: 15px;">
+                            {{ r['场馆名称'] }}
+                        </div>
+                        <div style="font-size: 13px; color: #475569;">
+                            <span style="opacity: 0.7;">📍</span> {{ r['校区'] }}
+                        </div>
+                        <div style="margin-top: 4px;">
+                            <span class="badge badge-blue" style="font-weight: 500; padding: 4px 10px; font-size: 12px;">
+                                🏟️ {{ r['场地名称'] }}
+                            </span>
+                        </div>
+                    </div>
+                </td>
+
+                <td style="padding: 18px 25px; vertical-align: top;">
+                    {% if r['状态']=='已预约' %}
+                        <span class="badge badge-green" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
+                            ✅ 已预约
+                        </span>
+                    {% elif r['状态']=='已取消' %}
+                        <span class="badge badge-gray" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; background: #f1f5f9; color: #94a3b8;">
+                            ⚪ 已取消
+                        </span>
+                    {% else %}
+                        <span class="badge badge-red" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;">
+                            ❌ {{ r['状态'] }}
+                        </span>
+                    {% endif %}
+                </td>
+
+                <td style="padding: 18px 25px; vertical-align: top; text-align: right;">
+                    {% if r['状态'] == '已预约' %}
+                    <form method="post" action="{{ url_for('cancel_booking', booking_id=r['预约ID']) }}" onsubmit="return confirm('⚠️ 高危操作警示\n\n您正在使用管理员权限强制取消用户 [{{ r['姓名'] }}] 的预约。\n\n如果该订单已支付，系统将尝试自动退款。确定继续吗？');">
+                        <button type="submit" class="btn btn-sm" style="background: #fff; color: #dc2626; border: 1px solid #fecaca; padding: 8px 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            <span style="font-size: 14px;">✖️</span> 强制取消
+                        </button>
+                    </form>
+                    <style>
+                        form button:hover { background: #fee2e2 !important; border-color: #dc2626 !important; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(220, 38, 38, 0.1) !important;}
+                    </style>
+                    {% else %}
+                    <span class="muted" style="font-size: 13px; color: #cbd5e1; font-weight: 500;">无可用操作</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 80px 0; color: #94a3b8;">
+                    <div style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;">📭</div>
+                    <div style="font-size: 16px;">暂无任何预约记录</div>
+                    <div style="font-size: 13px; margin-top: 10px; opacity: 0.8;">新产生的预约将实时显示在这里</div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

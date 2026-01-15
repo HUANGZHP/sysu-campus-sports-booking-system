@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width: 900px; margin: 0 auto; padding: 40px; border-radius: 16px;">
+  <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+    <a href="{{ url_for('community') }}" class="btn" style="background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; font-size: 13px;">&larr; 返回社区</a>
+    
+    <form action="{{ url_for('post_detail', post_id=post['帖子id']) }}" method="post" style="margin: 0;">
+        <input type="hidden" name="action" value="like">
+        <button type="submit" style="background: #fff; border: 1.5px solid #fecaca; color: #dc2626; padding: 6px 18px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: 0.2s;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#fff'">
+            ❤️ 赞 ({{ likes if likes else 0 }})
+        </button>
+    </form>
+  </div>
+
+  <div style="border-bottom: 1px solid #f1f5f9; padding-bottom: 30px; margin-bottom: 30px;">
+    <div style="display:flex; justify-content:space-between; align-items: flex-start;">
+        <h1 style="margin-top: 0; font-size: 28px; color: #111827; line-height: 1.3;">{{ post['标题'] }}</h1>
+        {% if user.role == '管理员' %}
+        <form method="post" onsubmit="return confirm('确定删除此贴及所有评论吗？');">
+            <input type="hidden" name="delete_post" value="true">
+            <button type="submit" class="btn btn-sm" style="background:#fee2e2; color:#dc2626; border:none; font-size:12px;">删除违规贴</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <div style="margin: 15px 0 25px 0; color: #6b7280; font-size: 14px; display: flex; align-items: center; gap: 15px;">
+      <span style="display: flex; align-items: center; gap: 5px;">👤 <strong>{{ post['姓名'] }}</strong></span>
+      <span>🕒 {{ post['发帖时间'] }}</span>
+    </div>
+    <div style="font-size: 17px; line-height: 1.8; color: #374151; white-space: pre-wrap;">{{ post['内容'] }}</div>
+  </div>
+
+  <h3 style="font-size: 20px; color: #111827; margin-bottom: 25px;">全部评论 ({{ comments|length }})</h3>
+  
+  <div style="margin-bottom: 50px;">
+    {% for c in comments %}
+    <div style="display: flex; gap: 15px; margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #f9fafb;">
+      <div style="width: 40px; height: 40px; border-radius: 50%; background: #005826; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">
+        {{ c['姓名'][0] }}
+      </div>
+      <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong style="font-size: 15px; color: #111827;">{{ c['姓名'] }}</strong>
+          <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 12px; color: #9ca3af;">{{ c['评论时间'] }}</span>
+              {% if user.user_id == c['用户id'] or user.role == '管理员' %}
+              <form action="{{ url_for('post_detail', post_id=post['帖子id']) }}" method="post" style="margin: 0; display: inline;">
+                  <input type="hidden" name="action" value="delete_comment">
+                  <input type="hidden" name="comment_id" value="{{ c['评论id'] }}">
+                  <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 12px; padding: 0; opacity: 0.7;" onclick="return confirm('确定删除评论？')" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">删除</button>
+              </form>
+              {% endif %}
+          </div>
+        </div>
+        <div style="font-size: 15px; color: #4b5563; line-height: 1.6;">{{ c['内容'] }}</div>
+      </div>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #9ca3af; font-size: 14px;">💬 暂无评论，快来抢沙发吧！</div>
+    {% endfor %}
+  </div>
+
+  <div style="background: #f9fafb; border-radius: 12px; padding: 25px;">
+    <h4 style="margin-top: 0; margin-bottom: 15px; font-size: 16px;">发表评论</h4>
+    <form method="post">
+      <input type="hidden" name="action" value="comment">
+      <textarea name="content" rows="4" required placeholder="友善评论，文明交流..." style="width: 100%; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s;" onfocus="this.style.borderColor='#005826'"></textarea>
+      <div style="margin-top: 15px; text-align: right;">
+        <button type="submit" class="btn" style="padding: 10px 30px; font-weight: 600;">提交评论</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>用户登录 - 中山大学体育馆</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      /* 背景图设置 */
+      background: url("{{ url_for('static', filename='images/sysu_bg.jpg') }}") no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* 黑色遮罩层，让背景暗一点，文字更清晰 */
+    .overlay {
+        position: absolute; top:0; left:0; width:100%; height:100%;
+        background: rgba(0, 50, 20, 0.4); /* 深绿色半透明遮罩 */
+        z-index: 1;
+    }
+    .login-card {
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      width: 360px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .logo-area img {
+        width: 80px;
+        margin-bottom: 10px;
+    }
+    .title {
+        color: #005826; /* 中大绿 */
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .subtitle {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 30px;
+        letter-spacing: 2px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+      background: #f9f9f9;
+    }
+    input:focus {
+        border-color: #005826;
+        outline: none;
+        background: #fff;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #005826;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #007C35;
+    }
+    .footer {
+        margin-top: 20px;
+        font-size: 12px;
+        color: #999;
+    }
+    .flash {
+        background: #fee2e2; color: #b91c1c; 
+        padding: 10px; border-radius: 4px; 
+        font-size: 12px; margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="login-card">
+    <div class="logo-area">
+        <img src="{{ url_for('static', filename='images/sysu_logo.jpg') }}" alt="Logo">
+    </div>
+    <div class="title">中山大学</div>
+    <div class="subtitle">体育场馆预约管理系统</div>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">{{ messages[0] }}</div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post">
+      <input type="text" name="username" placeholder="请输入学号/工号 (如 20230001)" required>
+      <input type="password" name="password" placeholder="请输入密码" required>
+      <button type="submit">登 录</button>
+    </form>
+    
+    <div class="footer">
+        博学 审问 慎思 明辨 笃行
+    </div>
+  </div>
+</body>
+</html>

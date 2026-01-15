@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2 style="margin:0; color:#005826;">🔍 失物招领管理</h2>
+  </div>
+  
+  <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+    <h4 style="margin-top:0; color: #166534; margin-bottom: 15px;">➕ 发布新启事</h4>
+    <form method="post" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <input name="name" placeholder="物品名称 (如: 黑色雨伞)" required style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
+        
+        <select name="type" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <option value="拾得">我捡到了 (拾得)</option>
+            <option value="丢失">我弄丢了 (丢失)</option>
+        </select>
+        
+        <select name="field_id" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            {% for f in fields %}
+            <option value="{{ f['场地ID'] }}">{{ f['场地名称'] }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit" class="btn" style="background: #16a34a;">发布信息</button>
+    </form>
+  </div>
+
+  <table class="modern-table">
+    <thead>
+      <tr>
+        <th width="80">类型</th>
+        <th>物品名称</th>
+        <th>关联场地</th>
+        <th>发布人</th>
+        <th width="80">操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in items %}
+      <tr>
+        <td>
+            {% if i['类型'] == '拾得' %}
+                <span class="badge badge-green">拾得</span>
+            {% else %}
+                <span class="badge badge-red">丢失</span>
+            {% endif %}
+        </td>
+        <td style="font-weight: bold; font-size: 15px;">{{ i['物品名称'] }}</td>
+        <td>{{ i['场地名称'] }}</td>
+        <td class="muted">{{ i['姓名'] }}</td>
+        <td>
+            <form method="post" onsubmit="return confirm('确定删除这条信息？');">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="item_id" value="{{ i['启事id'] }}">
+                <button type="submit" class="btn btn-sm btn-outline" style="color: #dc2626; border-color: #fecaca;">删除</button>
+            </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" style="text-align:center; padding:40px; color:#999;">暂无失物招领信息</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

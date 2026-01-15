@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card" style="border-left: 5px solid #005826; margin-bottom: 25px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div style="font-size: 13px; color: #64748b; font-weight: bold; letter-spacing: 1px; margin-bottom: 5px;">
+                TEAM LOBBY
+            </div>
+            <h2 style="margin: 0; color: #005826; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">🏀</span> 组队详情页
+            </h2>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-weight: bold; font-size: 18px; color: #333;">{{ booking['预约日期'] }}</div>
+            <div style="color: #64748b; font-size: 14px;">{{ booking['场馆名称'] }} {{ booking['场地名称'] }}</div>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 25px; align-items: start;">
+
+    <div>
+        <h3 style="margin-top: 0; color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+            👥 当前阵容 <span class="badge badge-green" style="font-size: 12px;">{{ members|length }} 人</span>
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+            {% for m in members %}
+            <div class="card" style="margin: 0; padding: 20px; text-align: center; position: relative; border: 1px solid #e5e7eb; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: transform 0.2s;">
+                
+                {% if m['排队序号'] == 1 %}
+                <div style="position: absolute; top: 10px; right: 10px; background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold;">
+                    👑 队长
+                </div>
+                {% endif %}
+
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #6b7280;">
+                    {{ m['姓名'][0] }}
+                </div>
+
+                <div style="font-weight: bold; font-size: 16px; color: #1f2937; margin-bottom: 4px;">{{ m['姓名'] }}</div>
+                <div style="font-size: 12px; color: #9ca3af; font-family: monospace; background: #f9fafb; padding: 2px 6px; border-radius: 4px; display: inline-block;">
+                    {{ m['学号或工号'] }}
+                </div>
+
+                <div style="margin-top: 15px; font-size: 12px;">
+                    {% if m['状态'] == '已确认' %}
+                        <span style="color: #16a34a;">● 已就位</span>
+                    {% else %}
+                        <span style="color: #6b7280;">● {{ m['状态'] }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <style> .card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.05) !important; border-color: #005826 !important; } </style>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card" style="position: sticky; top: 90px; border-top: 4px solid #005826;">
+        <h4 style="margin-top: 0; color: #005826; margin-bottom: 15px;">
+            🤝 邀请队友
+        </h4>
+        <p class="muted" style="font-size: 13px; margin-bottom: 20px;">
+            输入同学的学号或工号，将其加入到本次预约中。
+        </p>
+
+        <form method="post">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #4b5563;">对方学号/工号</label>
+                <input name="student_id" required placeholder="例如: 20230001" 
+                       style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; outline: none; transition: border 0.2s;">
+            </div>
+            
+            <button type="submit" class="btn" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-user-plus"></i> 添加成员
+            </button>
+        </form>
+
+        <div style="margin-top: 20px; border-top: 1px dashed #eee; padding-top: 15px;">
+            <a href="{{ url_for('my_bookings') }}" class="btn btn-outline" style="width: 100%; display: block; text-align: center; box-sizing: border-box;">
+                ← 返回列表
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    input:focus { border-color: #005826 !important; box-shadow: 0 0 0 3px rgba(0,88,38,0.1); }
+</style>
+
+{% endblock %}

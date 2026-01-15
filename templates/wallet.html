@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div style="border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 30px;">
+    <h2 style="margin: 0; color: #005826;">💳 我的钱包</h2>
+    <div class="muted">管理您的校园卡余额与交易记录</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; margin-bottom: 40px;">
+    
+    <div style="background: linear-gradient(135deg, #005826 0%, #059669 100%); color: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0, 88, 38, 0.2); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px;">
+      <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+      
+      <div>
+        <div style="font-size: 14px; opacity: 0.9; display: flex; align-items: center;">
+            <i class="fa-solid fa-wallet" style="margin-right: 8px;"></i> 当前余额
+        </div>
+        <div style="font-size: 48px; font-weight: bold; margin: 15px 0;">
+            <small style="font-size: 24px; vertical-align: top; margin-top: 8px; display: inline-block;">¥</small> {{ balance }}
+        </div>
+      </div>
+      <div style="font-size: 12px; opacity: 0.7; letter-spacing: 1px;">
+          CAMPUS CARD ACCOUNT
+      </div>
+    </div>
+
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; display: flex; flex-direction: column; justify-content: center;">
+      <h3 style="margin-top: 0; margin-bottom: 20px; color: #334155; font-size: 18px;">
+          ⚡ 快捷充值
+      </h3>
+      <form method="post" style="display: flex; gap: 15px;">
+        <div style="flex: 1; position: relative;">
+            <span style="position: absolute; left: 15px; top: 12px; color: #64748b; font-weight: bold;">¥</span>
+            <input type="number" name="amount" placeholder="输入充值金额" required 
+                   style="width: 100%; padding: 12px 12px 12px 35px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 16px; outline: none; box-sizing: border-box; transition: border 0.2s;">
+        </div>
+        <button type="submit" class="btn" style="padding: 0 30px; font-size: 16px; font-weight: bold; background: #005826;">
+            立即充值
+        </button>
+      </form>
+      <div class="muted" style="margin-top: 15px; font-size: 12px;">
+          <span style="margin-right: 15px;">✓ 即时到账</span>
+          <span>✓ 支持微信/支付宝</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 15px; color: #333;">📋 交易明细</h3>
+  <table class="modern-table">
+    <thead>
+      <tr>
+        <th width="180">时间</th>
+        <th width="100">类型</th>
+        <th>金额变动</th>
+        <th>关联信息</th>
+        <th width="180" style="color: #94a3b8; font-weight: normal;">流水号</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in flows %}
+      <tr>
+        <td style="color: #64748b; font-size: 13px;">
+            {{ f['创建时间']|string|replace("T", " ") }}
+        </td>
+        <td>
+            {% if f['类型'] == '充值' %}
+                <span class="badge badge-green">充值</span>
+            {% elif f['类型'] == '退款' %}
+                <span class="badge badge-blue">退款</span>
+            {% elif f['类型'] == '支付' %}
+                <span class="badge badge-gray">预约支付</span>
+            {% elif f['类型'] == '器材费' %}
+                <span class="badge badge-purple">器材费</span>
+            {% else %}
+                <span class="badge badge-red">{{ f['类型'] }}</span>
+            {% endif %}
+        </td>
+        <td style="font-size: 16px; font-weight: bold;">
+            {% if f['金额'] > 0 %}
+                <span style="color: #16a34a;">+{{ f['金额'] }}</span>
+            {% else %}
+                <span style="color: #dc2626;">{{ f['金额'] }}</span>
+            {% endif %}
+        </td>
+        <td style="font-size: 13px; color: #475569;">
+            {% if f['预约id'] %}
+                预约单号: <span style="font-family: monospace;">{{ f['预约id'] }}</span>
+            {% else %}
+                <span class="muted">-</span>
+            {% endif %}
+        </td>
+        <td style="font-family: monospace; font-size: 12px; color: #cbd5e1;">
+            {{ f['流水id'] }}
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+          <td colspan="5" style="text-align: center; padding: 40px; color: #94a3b8;">
+              暂无交易记录
+          </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<style>
+    input:focus { border-color: #005826 !important; box-shadow: 0 0 0 3px rgba(0, 88, 38, 0.1); }
+</style>
+{% endblock %}

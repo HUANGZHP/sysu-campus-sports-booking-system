@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2 style="margin:0; color:#005826;">🏀 器材库存管理</h2>
+  </div>
+  
+  <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+    <h4 style="margin-top:0; color: #166534; margin-bottom: 15px;">➕ 添加新器材</h4>
+    <form method="post" enctype="multipart/form-data" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #4b5563;">器材名称</label>
+            <input name="name" placeholder="如: 斯伯丁篮球" required style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #4b5563;">总数量</label>
+            <input name="total" type="number" placeholder="10" required style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; width: 80px;">
+        </div>
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #4b5563;">费用 (元/次)</label>
+            <input name="cost" type="number" placeholder="5" required style="padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; width: 80px;">
+        </div>
+        <div>
+            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #4b5563;">展示图片</label>
+            <input type="file" name="image" accept="image/*" style="font-size: 12px;">
+        </div>
+        
+        <button type="submit" class="btn" style="background: #16a34a; height: 35px;">确认添加</button>
+    </form>
+  </div>
+
+  <table class="modern-table">
+    <thead>
+      <tr>
+        <th width="80">图片</th>
+        <th>名称</th>
+        <th width="120">修改价格</th>
+        <th width="120">修改总库存</th>
+        <th>可用 / 总数</th>
+        <th>状态</th>
+        <th width="150">操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in items %}
+      <tr>
+        <td>
+            <img src="{{ url_for('static', filename='uploads/' + (i['图片'] if i['图片'] else 'default_equipment.jpg')) }}" 
+                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #eee;">
+        </td>
+        <td style="font-weight: bold; font-size: 15px;">{{ i['名称'] }}</td>
+        
+        <form action="{{ url_for('admin_equipment') }}" method="post" style="margin:0;">
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="eq_id" value="{{ i['id'] }}">
+            
+            <td>
+                <input name="cost" type="number" value="{{ i['费用'] }}" 
+                       style="width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
+            </td>
+            <td>
+                <input name="total" type="number" value="{{ i['总数量'] }}" 
+                       style="width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
+            </td>
+            <td>
+                <span style="font-weight: bold; color: #059669;">{{ i['可用数量'] }}</span> 
+                <span class="muted">/ {{ i['总数量'] }}</span>
+            </td>
+            <td>
+                {% if i['可用数量'] > 0 %}
+                    <span class="badge badge-green">充足</span>
+                {% else %}
+                    <span class="badge badge-red">缺货</span>
+                {% endif %}
+            </td>
+            <td>
+                <div style="display: flex; gap: 8px;">
+                    <button type="submit" class="btn btn-sm" style="background: #005826; padding: 6px 12px; border: none; color: white; cursor: pointer;">更新</button>
+        </form> <form action="{{ url_for('admin_equipment') }}" method="post" 
+                          onsubmit="return confirm('确定要删除吗？这将同时删除该器材的所有历史借用记录！');" style="margin:0;">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="eq_id" value="{{ i['id'] }}">
+                        <button type="submit" class="btn btn-sm" style="background: #dc2626; padding: 6px 12px; border: none; color: white; cursor: pointer;">删除</button>
+                    </form>
+                </div>
+            </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div style="border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; margin-bottom: 20px;">
+    <h2 style="margin: 0; color: #005826;">🛠 场地故障报修</h2>
+    <div class="muted">发现设施损坏？请告诉我们，我们会尽快处理。</div>
+  </div>
+
+  <div style="background: #fffbf0; border: 1px solid #fde68a; padding: 25px; border-radius: 8px; margin-bottom: 30px;">
+    <h3 style="margin-top:0; color: #b45309; font-size: 16px; margin-bottom: 15px;">📝 提交新问题</h3>
+    <form method="post" style="display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+            <select name="field_id" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; background: white;">
+                <option value="">-- 选择故障场地 --</option>
+                {% for f in fields %}
+                <option value="{{ f['场地ID'] }}">{{ f['校区'] }} - {{ f['场馆名称'] }} {{ f['场地名称'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="flex: 2; min-width: 300px;">
+            <input name="description" placeholder="请简要描述故障情况（如：篮筐松动、地板积水等）" required 
+                   style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+        </div>
+        <button type="submit" class="btn" style="background: #d97706; padding: 10px 25px;">立即提交</button>
+    </form>
+  </div>
+
+  <h3 style="color: #333; font-size: 18px; margin-bottom: 15px;">我的报修进度</h3>
+  <table class="modern-table">
+    <thead>
+      <tr>
+        <th width="150">提交时间</th>
+        <th>报修场地</th>
+        <th>故障描述</th>
+        <th width="100">当前状态</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td class="muted" style="font-size:12px;">{{ r['创建时间'] }}</td>
+        <td><strong>{{ r['场地名称'] }}</strong></td>
+        <td>{{ r['描述'] }}</td>
+        <td>
+            {% if r['状态'] == '提交中' %}
+                <span class="badge badge-red">处理中</span>
+            {% else %}
+                <span class="badge badge-green">已修复</span>
+            {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" style="text-align:center; padding:40px; color:#999;">暂无报修记录</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    /* 1. 顶部场馆信息卡片 */
+    .venue-header-card {
+        background: white;
+        border-radius: 16px;
+        padding: 25px;
+        display: flex;
+        gap: 30px;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f0f0f0;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    /* 装饰条 */
+    .venue-header-card::before {
+        content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+        background: #005826;
+    }
+
+    .venue-img {
+        width: 140px; height: 100px;
+        border-radius: 10px; object-fit: cover;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .venue-info h2 { margin: 0 0 8px 0; color: #333; font-size: 24px; }
+    .venue-meta { color: #666; font-size: 14px; display: flex; gap: 15px; align-items: center; }
+    .venue-price { font-size: 20px; font-weight: bold; color: #d97706; font-family: monospace; }
+
+    /* 日期选择器美化 */
+    .date-picker-box {
+        margin-left: auto; /* 推到右边 */
+        background: #f8fafc;
+        padding: 10px 20px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        display: flex; flex-direction: column; align-items: flex-start;
+    }
+    .date-input {
+        border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px;
+        font-family: inherit; color: #333; outline: none;
+        transition: border 0.2s; cursor: pointer;
+    }
+    .date-input:focus { border-color: #005826; }
+
+    /* 2. 时段网格布局 */
+    .slots-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 20px;
+    }
+
+    /* 单个时间胶囊 */
+    .time-capsule {
+        background: white;
+        border-radius: 12px;
+        padding: 20px 15px;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+    }
+
+    /* 状态：可预约 */
+    .time-capsule.available {
+        border-color: #bbf7d0;
+        background: #f0fdf4;
+    }
+    .time-capsule.available .time-text { color: #15803d; font-weight: 800; font-size: 18px; }
+    .time-capsule.available .status-text { color: #16a34a; font-size: 12px; margin-top: 5px; }
+    
+    /* 悬停效果 */
+    .time-capsule.available:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(22, 163, 74, 0.15);
+        border-color: #16a34a;
+        background: #16a34a;
+    }
+    .time-capsule.available:hover .time-text,
+    .time-capsule.available:hover .status-text { color: white; }
+
+    /* 状态：不可用 (被预约/封场) */
+    .time-capsule.disabled {
+        background: #f3f4f6;
+        border-color: #e5e7eb;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    .time-capsule.disabled .time-text { color: #9ca3af; font-size: 18px; text-decoration: line-through; }
+    .time-capsule.disabled .status-text { color: #6b7280; font-size: 12px; margin-top: 5px; font-weight: bold; }
+    
+    /* 状态：封场特别样式 */
+    .time-capsule.blocked {
+        background: #fef2f2;
+        border-color: #fecaca;
+    }
+    .time-capsule.blocked .status-text { color: #dc2626; }
+
+    /* 3. 弹窗美化 */
+    #bookingModal { backdrop-filter: blur(5px); }
+    .modal-content {
+        background: white; width: 420px; padding: 35px; border-radius: 16px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: zoomIn 0.3s;
+    }
+    @keyframes zoomIn { from {opacity:0; transform:scale(0.9);} to {opacity:1; transform:scale(1);} }
+    
+    .radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+    .radio-option input { display: none; }
+    .radio-option .option-box {
+        border: 2px solid #e5e7eb; border-radius: 10px; padding: 15px; text-align: center;
+        cursor: pointer; transition: 0.2s; color: #64748b;
+    }
+    .radio-option input:checked + .option-box {
+        border-color: #005826; background: #f0fdf4; color: #005826; font-weight: bold;
+        box-shadow: 0 4px 10px rgba(0,88,38,0.1);
+    }
+</style>
+
+<div class="venue-header-card">
+    <img src="{{ url_for('static', filename='uploads/' + (field['图片'] if field['图片'] else 'default.jpg')) }}" class="venue-img">
+    
+    <div class="venue-info">
+        <h2>{{ field['场地名称'] }}</h2>
+        <div class="venue-meta">
+            <span><i class="fa-solid fa-location-dot"></i> {{ field['校区'] }} - {{ field['场馆名称'] }}</span>
+            <span class="badge badge-blue">{{ field['设施类型'] }}</span>
+            <span style="margin-left: 10px; color: #64748b; font-size: 13px;">👥 容纳: <strong>{{ field['可容纳人数'] }}</strong> 人</span>
+        </div>
+        <div style="margin-top: 10px;">
+            <span class="venue-price">¥{{ field['预约价格'] }}</span> <span style="font-size:12px; color:#999;">/小时</span>
+        </div>
+    </div>
+
+    <div class="date-picker-box">
+        <label style="font-size:12px; font-weight:bold; color:#64748b; margin-bottom:5px;">📅 预约日期</label>
+        <form method="get">
+            <input type="date" name="date" value="{{ date_str }}" class="date-input" onchange="this.form.submit()">
+        </form>
+    </div>
+</div>
+
+<div class="card" style="border:none; box-shadow:none; background:transparent;">
+    <div style="display:flex; gap:20px; margin-bottom:20px; padding-left:10px;">
+        <div style="display:flex; align-items:center; gap:6px; font-size:13px; color:#64748b;">
+            <div style="width:12px; height:12px; background:#16a34a; border-radius:4px;"></div> 可预约
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:13px; color:#64748b;">
+            <div style="width:12px; height:12px; background:#e5e7eb; border-radius:4px;"></div> 已被约
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:13px; color:#64748b;">
+            <div style="width:12px; height:12px; background:#fecaca; border-radius:4px;"></div> 维护中
+        </div>
+    </div>
+
+    <div class="slots-container">
+        {% for s in slots %}
+            {% if s['available'] %}
+                <div class="time-capsule available" onclick="openModal('{{ s.slot_id }}', '{{ s.start }} - {{ s.end }}')">
+                    <div class="time-text">{{ s.start }}</div>
+                    <div class="status-text">¥{{ field['预约价格'] }}</div>
+                </div>
+            {% else %}
+                <div class="time-capsule disabled {% if s.reason != '已预约' %}blocked{% endif %}">
+                    <div class="time-text">{{ s.start }}</div>
+                    <div class="status-text">
+                        {% if s.reason == '已预约' %}
+                            <i class="fa-solid fa-lock"></i> 已被约
+                        {% else %}
+                            <i class="fa-solid fa-ban"></i> {{ s.reason }}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<div id="bookingModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div class="modal-content">
+        <h3 style="margin-top:0; color:#005826; text-align:center;">📝 确认预约信息</h3>
+        
+        <form action="{{ url_for('create_booking') }}" method="post">
+            <input type="hidden" name="field_id" value="{{ field['场地ID'] }}">
+            <input type="hidden" name="date" value="{{ date_str }}">
+            <input type="hidden" name="slot_id" id="modalSlotId">
+
+            <div style="background:#f8fafc; padding:15px; border-radius:8px; text-align:center; margin-bottom:20px;">
+                <div style="font-size:14px; color:#64748b;">{{ date_str }}</div>
+                <div style="font-size:24px; font-weight:bold; color:#333; margin:5px 0;" id="modalTimeStr"></div>
+                <div style="font-size:14px; color:#005826;">{{ field['场馆名称'] }} - {{ field['场地名称'] }}</div>
+            </div>
+
+            <div style="font-size:13px; font-weight:bold; color:#64748b; margin-bottom:10px;">选择预约类型：</div>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="booking_type" value="个人" checked>
+                    <div class="option-box">
+                        <div style="font-size:20px;">👤</div>
+                        <div>个人预约</div>
+                    </div>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="booking_type" value="组队">
+                    <div class="option-box">
+                        <div style="font-size:20px;">👥</div>
+                        <div>发起组队</div>
+                    </div>
+                </label>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:30px;">
+                <button type="button" onclick="closeModal()" class="btn btn-outline" style="flex:1;">取消</button>
+                <button type="submit" class="btn" style="flex:1;">确认支付</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(sid, time) {
+        document.getElementById('bookingModal').style.display = 'flex';
+        document.getElementById('modalSlotId').value = sid;
+        document.getElementById('modalTimeStr').innerText = time;
+    }
+    function closeModal() {
+        document.getElementById('bookingModal').style.display = 'none';
+    }
+    // 点击背景关闭
+    document.getElementById('bookingModal').addEventListener('click', function(e){
+        if(e.target === this) closeModal();
+    });
+</script>
+
+{% endblock %}

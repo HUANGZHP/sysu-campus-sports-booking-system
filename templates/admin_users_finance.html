@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2 style="color:#005826; margin-top:0;">💰 财务与信用报表</h2>
+  
+  <div style="display:flex; gap:20px; margin-bottom:30px;">
+    <div style="flex:1; background:#f0fdf4; padding:20px; border-radius:10px; border:1px solid #86efac;">
+        <div class="muted">总收入</div>
+        <div style="font-size:32px; font-weight:bold; color:#166534;">¥ {{ finance['total_income'] or 0 }}</div>
+    </div>
+    <div style="flex:1; background:#fff1f2; padding:20px; border-radius:10px; border:1px solid #fecaca;">
+        <div class="muted">总退款</div>
+        <div style="font-size:32px; font-weight:bold; color:#be123c;">¥ {{ finance['total_refund'] or 0 }}</div>
+    </div>
+  </div>
+
+  <h3>学生信用列表</h3>
+  <table class="modern-table">
+    <thead>
+      <tr>
+        <th>学号</th>
+        <th>姓名</th>
+        <th>信用分</th>
+        <th>账号状态</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u['学号或工号'] }}</td>
+        <td><strong>{{ u['姓名'] }}</strong></td>
+        <td>
+            {% if u['信用分'] >= 8 %}<span style="color:#166534; font-weight:bold;">{{ u['信用分'] }} (优)</span>
+            {% elif u['信用分'] >= 6 %}<span style="color:#ca8a04; font-weight:bold;">{{ u['信用分'] }} (良)</span>
+            {% else %}<span style="color:#dc2626; font-weight:bold;">{{ u['信用分'] }} (差)</span>{% endif %}
+        </td>
+        <td><span class="badge badge-gray">{{ u['账号状态'] }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

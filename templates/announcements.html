@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="background:transparent; box-shadow:none; border:none; padding:0;">
+  
+  <div style="background:white; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <h2 style="margin: 0; color: #005826;">📢 校园公告栏 & 封场通知</h2>
+        <span style="font-size:13px; color:#666;">查看全校通知，以及场馆维修、赛事占用情况</span>
+    </div>
+  </div>
+
+  {% if user.role == '管理员' %}
+  <div style="background:#f0fdf4; border:1px solid #86efac; padding:25px; border-radius:10px; margin-bottom:25px;">
+    <h4 style="margin-top:0; color:#166534; margin-bottom:15px;">✍️ 发布新公告 / 设置封场</h4>
+    <form method="post">
+        <div style="display:flex; gap:15px; margin-bottom:15px;">
+            <select name="type" id="announceType" onchange="toggleFields()" style="padding:10px; border-radius:5px; border:1px solid #ddd; flex:1;">
+                <option value="通知">📢 校园通知</option>
+                <option value="封场">🚫 临时封场</option>
+                <option value="维修">🛠️ 场地维修</option>
+                <option value="赛事">🏆 赛事占用</option>
+            </select>
+            <input name="title" placeholder="公告标题" required style="padding:10px; border-radius:5px; border:1px solid #ddd; flex:3;">
+        </div>
+
+        <div id="fieldSelection" style="display:none; flex-direction:column; gap:12px; margin-bottom:15px; background:white; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="display:flex; gap:10px; align-items:center;">
+                <label style="font-size:13px; font-weight:bold; white-space:nowrap;">选择场地:</label>
+                <select name="field_id" style="padding:8px; border-radius:4px; border:1px solid #ddd; flex:1;">
+                    <option value="">-- 全馆/通用 --</option>
+                    {% for f in fields %}
+                    <option value="{{ f.场地ID }}">{{ f.校区 }}-{{ f.场馆名称 }}-{{ f.场地名称 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <label style="font-size:13px; font-weight:bold; white-space:nowrap;">封场日期:</label>
+                <input type="date" name="block_date" style="padding:8px; border-radius:4px; border:1px solid #ddd;">
+                
+                <label style="font-size:13px; font-weight:bold; white-space:nowrap; margin-left:10px;">具体时段:</label>
+                <input type="time" name="start_time" style="padding:8px; border-radius:4px; border:1px solid #ddd;">
+                <span>至</span>
+                <input type="time" name="end_time" style="padding:8px; border-radius:4px; border:1px solid #ddd;">
+            </div>
+            <p style="margin:0; font-size:12px; color:#666;">* 只有在指定日期和时段内的预约会被拦截</p>
+        </div>
+
+        <textarea name="content" placeholder="详细内容描述..." required style="width:100%; padding:10px; border-radius:5px; border:1px solid #ddd; height:100px; margin-bottom:15px;"></textarea>
+        <button type="submit" class="btn" style="width:100%; font-weight:bold; letter-spacing:1px;">立即发布公告</button>
+    </form>
+  </div>
+  <script>
+    function toggleFields() {
+        var type = document.getElementById('announceType').value;
+        document.getElementById('fieldSelection').style.display = (type === '通知') ? 'none' : 'flex';
+    }
+  </script>
+  {% endif %}
+
+  <div style="display:flex; flex-direction:column; gap:15px;">
+    {% for r in rows %}
+      {% set color = '#005826' %}
+      {% if r['公告类型'] == '封场' %}{% set color = '#dc2626' %}
+      {% elif r['公告类型'] == '维修' %}{% set color = '#d97706' %}
+      {% elif r['公告类型'] == '赛事' %}{% set color = '#2563eb' %}{% endif %}
+
+      <div style="display:flex; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.05); border:1px solid #e5e7eb;">
+        <div style="width:6px; background-color:{{ color }};"></div>
+        <div style="padding:20px; flex:1;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+              <span style="background:{{ color }}; color:white; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:bold;">{{ r['公告类型'] }}</span>
+              <span style="font-family:monospace; color:#9ca3af; font-size:13px;">{{ r['开始时间']|string|replace("T", " ") }}</span>
+          </div>
+          
+          <h3 style="margin:0 0 10px 0; color:#333;">
+              {% if '【全馆封锁】' in r['标题'] %}
+                  <span style="color:{{ color }}; font-weight: bold;">【全馆封锁】</span>
+                  <span>{{ r['标题'].replace('【全馆封锁】', '') }}</span>
+              {% else %}
+                  {% if r['公告类型'] != '通知' and r['场地名称'] %}
+                      <span style="color:{{ color }};">[{{ r['场地名称'] }}]</span>
+                  {% endif %}
+                  {{ r['标题'] }}
+              {% endif %}
+          </h3>
+          
+          {% if '(时间:' in r['内容'] %}
+            <div style="background:#fef2f2; color:#991b1b; padding:8px 12px; border-radius:6px; margin-bottom:12px; font-size:13px; border:1px solid #fee2e2;">
+                <i class="fa-regular fa-clock"></i> <strong>受影响时段：</strong>
+                {{ r['内容'].split('(时间:')[1].replace(')', '') }}
+            </div>
+            <p style="margin:0 0 15px 0; color:#666; font-size:14px; line-height: 1.6;">{{ r['内容'].split('(时间:')[0] }}</p>
+          {% else %}
+            <p style="margin:0 0 15px 0; color:#666; font-size:14px; line-height: 1.6;">{{ r['内容'] }}</p>
+          {% endif %}
+          
+          <div style="border-top:1px solid #f3f4f6; padding-top:12px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:12px; color:#888;">
+                👤 发布人：{{ r['发布人姓名'] or r['发布人'] or '管理员' }}
+            </div>
+            {% if user.role == '管理员' %}
+            <form method="post" onsubmit="return confirm('确定删除此公告吗？');">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="announcement_id" value="{{ r['公告ID'] }}">
+                <button type="submit" style="background:none; border:none; color:#dc2626; cursor:pointer; font-size:12px;">删除公告</button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
