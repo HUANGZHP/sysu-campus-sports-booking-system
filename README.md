@@ -96,35 +96,33 @@ yaml
 ## ⚙️ 运行方式
 
 ### 1. 创建虚拟环境
-
-```bash
 python -m venv .venv
 .venv\Scripts\activate   # Windows
+
+
 2. 安装依赖
-bash
 复制代码
 pip install -r requirements.txt
-3. 配置数据库
-sql
-复制代码
-CREATE DATABASE campus_sports_booking CHARACTER SET utf8mb4;
-.env 文件示例：
 
+
+3. 配置数据库
+CREATE DATABASE campus_sports_booking CHARACTER SET utf8mb4；
+
+.env 文件示例：
 ini
 复制代码
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=你的密码
 DB_NAME=campus_sports_booking
-4. 启动项目
-bash
-复制代码
-python app.py
-浏览器访问：
 
-cpp
-复制代码
+
+4. 启动项目
+python app.py
+
+浏览器访问：
 http://127.0.0.1:5000
+
 🧪 测试内容
 预约冲突检测
 
